@@ -1,0 +1,45 @@
+#include <stdio.h>
+#define MAX 5
+
+int queue[MAX], front = -1, rear = -1;
+
+void enqueue(int job) {
+    if (rear == MAX-1) {
+        printf("Queue Full!\n");
+    } else {
+        if (front == -1) front = 0;
+        queue[++rear] = job;
+        printf("Job %d added\n", job);
+    }
+}
+
+void dequeue() {
+    if (front == -1 || front > rear) {
+        printf("No jobs to print!\n");
+    } else {
+        printf("Printing Job %d\n", queue[front++]);
+        if (front > rear) front = rear = -1;
+    }
+}
+
+int main() {
+    int n, job;
+    
+    printf("How many jobs do you want to enter? ");
+    scanf("%d", &n);
+
+    // Enqueue jobs
+    for (int i = 0; i < n; i++) {
+        printf("Enter Job ID: ");
+        scanf("%d", &job);
+        enqueue(job);
+    }
+
+    printf("\nPrinting all jobs:\n");
+    // Dequeue all jobs
+    while (front != -1) {
+        dequeue();
+    }
+
+    return 0;
+}
