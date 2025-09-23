@@ -1,0 +1,46 @@
+#include <stdio.h>
+#define MAX 5
+
+int stack[MAX], top = -1;
+
+void playSong() {
+    int song;
+    if(top == MAX-1) printf("History Full!\n");
+    else {
+        printf("Enter Song ID to play: ");
+        scanf("%d", &song);
+        stack[++top] = song;
+        printf("Playing Song %d\n", song);
+    }
+}
+
+void previousSong() {
+    if(top == -1) printf("No song in history!\n");
+    else printf("Back to Song %d\n", stack[top--]);
+}
+
+void showHistory() {
+    if(top == -1) printf("No song history\n");
+    else {
+        printf("Song History (Latest on top): ");
+        for(int i=top;i>=0;i--) printf("%d ",stack[i]);
+        printf("\n");
+    }
+}
+
+int main() {
+    int choice;
+    do {
+        printf("\n1.Play New Song\n2.Back\n3.Show History\n4.Exit\nChoice: ");
+        scanf("%d",&choice);
+
+        if(choice==1) playSong();
+        else if(choice==2) previousSong();
+        else if(choice==3) showHistory();
+        else if(choice==4) printf("Exiting...\n");
+        else printf("Invalid Choice!\n");
+
+    } while(choice != 4);
+
+    return 0;
+}
