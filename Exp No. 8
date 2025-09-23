@@ -1,0 +1,149 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Node {
+    int seatNo;
+    int booked; // 0 = available, 1 = booked
+    char passenger[50];
+    struct Node *next;
+    struct Node *prev;
+};
+
+struct Node *head = NULL;
+
+// Create new seat node
+struct Node* createSeat(int seatNo) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->seatNo = seatNo;
+    newNode->booked = 0;
+    strcpy(newNode->passenger, "None");
+    newNode->next = newNode->prev = newNode;
+    return newNode;
+}
+
+// Add seat to bus
+void addSeat(int seatNo) {
+    struct Node* newNode = createSeat(seatNo);
+    if (head == NULL) {
+        head = newNode;
+        return;
+    }
+    struct Node* tail = head->prev;
+    tail->next = newNode;
+    newNode->prev = tail;
+    newNode->next = head;
+    head->prev = newNode;
+}
+
+// Display seats
+void displaySeats() {
+    if (head == NULL) {
+        printf("No seats available.\n");
+        return;
+    }
+    struct Node* temp = head;
+    printf("\nBus Seat Status:\n");
+    do {
+        printf("Seat %d: %s (%s)\n", temp->seatNo,
+               temp->booked ? "Booked" : "Available",
+               temp->passenger);
+        temp = temp->next;
+    } while (temp != head);
+}
+
+// Book seat
+void bookSeat(int seatNo, char name[]) {
+    if (head == NULL) {
+        printf("No seats available.\n");
+        return;
+    }
+    struct Node* temp = head;
+    do {
+        if (temp->seatNo == seatNo) {
+            if (temp->booked == 0) {
+                temp->booked = 1;
+                strcpy(temp->passenger, name);
+                printf("Seat %d booked successfully for %s.\n", seatNo, name);
+            } else {
+                printf("Seat %d is already booked.\n", seatNo);
+            }
+            return;
+        }
+        temp = temp->next;
+    } while (temp != head);
+    printf("Seat not found.\n");
+}
+
+// Cancel booking
+void cancelSeat(int seatNo) {
+    if (head == NULL) {
+        printf("No seats available.\n");
+        return;
+    }
+    struct Node* temp = head;
+    do {
+        if (temp->seatNo == seatNo) {
+            if (temp->booked == 1) {
+                temp->booked = 0;
+                strcpy(temp->passenger, "None");
+                printf("Seat %d booking canceled.\n", seatNo);
+            } else {
+                printf("Seat %d is not booked.\n", seatNo);
+            }
+            return;
+        }
+        temp = temp->next;
+    } while (temp != head);
+    printf("Seat not found.\n");
+}
+
+int main() {
+    int choice, seatNo, totalSeats;
+    char name[50];
+
+    printf("Enter total seats in bus: ");
+    scanf("%d", &totalSeats);
+
+    for (int i = 1; i <= totalSeats; i++) {
+        addSeat(i);
+    }
+
+    do {
+        printf("\n--- Bus Reservation Menu ---\n");
+        printf("1. Display Seats\n");
+        printf("2. Book Seat\n");
+        printf("3. Cancel Seat\n");
+        printf("4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+        getchar(); // clear buffer
+
+        switch (choice) {
+            case 1:
+                displaySeats();
+                break;
+            case 2:
+                printf("Enter seat number to book: ");
+                scanf("%d", &seatNo);
+                getchar();
+                printf("Enter passenger name: ");
+                fgets(name, sizeof(name), stdin);
+                name[strcspn(name, "\n")] = 0; // remove newline
+                bookSeat(seatNo, name);
+                break;
+            case 3:
+                printf("Enter seat number to cancel: ");
+                scanf("%d", &seatNo);
+                cancelSeat(seatNo);
+                break;
+            case 4:
+                printf("Exiting Reservation System...\n");
+                break;
+            default:
+                printf("Invalid choice.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
+}
