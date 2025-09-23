@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure for BST Node
+struct Student {
+    int roll;
+    char name[50];
+    struct Student* left;
+    struct Student* right;
+};
+
+// Create a new node
+struct Student* createNode(int roll, char name[]) {
+    struct Student* newNode = (struct Student*)malloc(sizeof(struct Student));
+    newNode->roll = roll;
+    strcpy(newNode->name, name);
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Insert node into BST
+struct Student* insert(struct Student* root, int roll, char name[]) {
+    if (root == NULL)
+        return createNode(roll, name);
+
+    if (roll < root->roll)
+        root->left = insert(root->left, roll, name);
+    else if (roll > root->roll)
+        root->right = insert(root->right, roll, name);
+    else
+        printf("Roll number already exists!\n");
+
+    return root;
+}
+
+// Search for a student
+struct Student* search(struct Student* root, int roll) {
+    if (root == NULL || root->roll == roll)
+        return root;
+    if (roll < root->roll)
+        return search(root->left, roll);
+    else
+        return search(root->right, roll);
+}
+
+// Inorder traversal to display students
+void inorder(struct Student* root) {
+    if (root != NULL) {
+        inorder(root->left);
+        printf("Roll: %d, Name: %s\n", root->roll, root->name);
+        inorder(root->right);
+    }
+}
+
+int main() {
+    struct Student* root = NULL;
+    int choice, roll;
+    char name[50];
+    struct Student* temp;
+
+    while (1) {
+        printf("\n--- Student Database Menu ---\n");
+        printf("1. Insert Student\n2. Search Student\n3. Display Students\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter Roll Number: ");
+                scanf("%d", &roll);
+                printf("Enter Name: ");
+                scanf("%s", name);
+                root = insert(root, roll, name);
+                break;
+
+            case 2:
+                printf("Enter Roll Number to Search: ");
+                scanf("%d", &roll);
+                temp = search(root, roll);
+                if (temp != NULL)
+                    printf("Student Found: Roll: %d, Name: %s\n", temp->roll, temp->name);
+                else
+                    printf("Student not found!\n");
+                break;
+
+            case 3:
+                printf("\n--- Students in Sorted Order ---\n");
+                inorder(root);
+                break;
+
+            case 4:
+                exit(0);
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    }
+
+    return 0;
+}
