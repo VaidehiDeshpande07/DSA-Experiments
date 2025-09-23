@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX 100
+char opStack[MAX]; int top=-1;
+int numStack[MAX], topN=-1;
+
+int prec(char c){ return (c=='+'||c=='-')?1:(c=='*'||c=='/')?2:0; }
+void pushOp(char c){ opStack[++top]=c; }
+char popOp(){ return opStack[top--]; }
+void pushNum(int n){ numStack[++topN]=n; }
+int popNum(){ return numStack[topN--]; }
+
+void apply(char op){
+    int b=popNum(), a=popNum();
+    if(op=='+') pushNum(a+b);
+    if(op=='-') pushNum(a-b);
+    if(op=='*') pushNum(a*b);
+    if(op=='/') pushNum(a/b);
+}
+
+int evaluate(char exp[]){
+    for(int i=0; exp[i]; i++){
+        if(isdigit(exp[i])){
+            int num=0;
+            while(isdigit(exp[i])) num=num*10+(exp[i++]-'0');
+            pushNum(num); i--;
+        }
+        else if(exp[i]=='(') pushOp('(');
+        else if(exp[i]==')'){
+            while(top!=-1 && opStack[top]!='(') apply(popOp());
+            popOp();
+        }
+        else{
+            while(top!=-1 && prec(opStack[top])>=prec(exp[i])) apply(popOp());
+            pushOp(exp[i]);
+        }
+    }
+    while(top!=-1) apply(popOp());
+    return popNum();
+}
+
+int main(){
+    char exp[MAX];
+    printf("Enter expression: ");
+    scanf("%s", exp);
+    printf("Result = %d\n", evaluate(exp));
+    return 0;
+}
