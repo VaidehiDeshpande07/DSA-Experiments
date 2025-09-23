@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Song {
+    char title[50];
+    struct Song *next;
+};
+
+struct Song *last = NULL;
+
+// Function to add a song at the end
+void addSongEnd(char songName[]) {
+    struct Song *newSong = (struct Song *)malloc(sizeof(struct Song));
+    strcpy(newSong->title, songName);
+
+    if (last == NULL) {
+        last = newSong;
+        last->next = last;
+    } else {
+        newSong->next = last->next;
+        last->next = newSong;
+        last = newSong;
+    }
+    printf("Song '%s' added at end.\n", songName);
+}
+
+// Function to add a song at the beginning
+void addSongBegin(char songName[]) {
+    struct Song *newSong = (struct Song *)malloc(sizeof(struct Song));
+    strcpy(newSong->title, songName);
+
+    if (last == NULL) {
+        last = newSong;
+        last->next = last;
+    } else {
+        newSong->next = last->next;
+        last->next = newSong;
+    }
+    printf("Song '%s' added at beginning.\n", songName);
+}
+
+// Function to delete a song
+void deleteSong(char songName[]) {
+    if (last == NULL) {
+        printf("Playlist is empty, nothing to delete.\n");
+        return;
+    }
+
+    struct Song *temp = last->next;
+    struct Song *prev = last;
+
+    do {
+        if (strcmp(temp->title, songName) == 0) {
+            if (temp == last && temp->next == last) { // only one song
+                free(temp);
+                last = NULL;
+            } else {
+                prev->next = temp->next;
+                if (temp == last)
+                    last = prev;
+                free(temp);
+            }
+            printf("Song '%s' deleted.\n", songName);
+            return;
+        }
+        prev = temp;
+        temp = temp->next;
+    } while (temp != last->next);
+
+    printf("Song '%s' not found in playlist.\n", songName);
+}
+
+// Function to display the playlist
+void displayPlaylist() {
+    if (last == NULL) {
+        printf("Playlist is empty.\n");
+        return;
+    }
+
+    struct Song *temp = last->next;
+    printf("\nPlaylist:\n");
+    do {
+        printf("🎵 %s\n", temp->title);
+        temp = temp->next;
+    } while (temp != last->next);
+}
+
+int main() {
+    int choice;
+    char songName[50];
+
+    while (1) {
+        printf("\n--- Music Playlist Menu ---\n");
+        printf("1. Add Song at End\n");
+        printf("2. Add Song at Beginning\n");
+        printf("3. Delete Song\n");
+        printf("4. Display Playlist\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter song name: ");
+                scanf(" %[^\n]", songName);
+                addSongEnd(songName);
+                break;
+
+            case 2:
+                printf("Enter song name: ");
+                scanf(" %[^\n]", songName);
+                addSongBegin(songName);
+                break;
+
+            case 3:
+                printf("Enter song name to delete: ");
+                scanf(" %[^\n]", songName);
+                deleteSong(songName);
+                break;
+
+            case 4:
+                displayPlaylist();
+                break;
+
+            case 5:
+                printf("Exiting program.\n");
+                exit(0);
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    }
+
+    return 0;
+}
