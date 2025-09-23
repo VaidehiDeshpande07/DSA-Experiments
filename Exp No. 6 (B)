@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Node structure
+struct Node {
+    char name[50];
+    struct Node* next;
+};
+
+struct Node* front = NULL;
+struct Node* rear = NULL;
+
+// Enqueue (Book Ticket)
+void enqueue(char* person) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    strcpy(newNode->name, person);
+    newNode->next = NULL;
+    if (rear == NULL) {
+        front = rear = newNode;
+    } else {
+        rear->next = newNode;
+        rear = newNode;
+    }
+    printf("Ticket booked for %s.\n", person);
+}
+
+// Dequeue (Serve Ticket)
+void dequeue() {
+    if (front == NULL) {
+        printf("No tickets to serve!\n");
+        return;
+    }
+    printf("%s got the ticket and left the queue.\n", front->name);
+    struct Node* temp = front;
+    front = front->next;
+    if (front == NULL) rear = NULL;
+    free(temp);
+}
+
+// Display Queue
+void display() {
+    if (front == NULL) {
+        printf("No people in queue.\n");
+        return;
+    }
+    struct Node* temp = front;
+    printf("People waiting: ");
+    while (temp != NULL) {
+        printf("%s ", temp->name);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Main menu
+int main() {
+    int choice;
+    char name[50];
+
+    while (1) {
+        printf("\n--- Ticket Booking Queue ---\n");
+        printf("1. Book Ticket\n2. Serve Ticket\n3. Show Queue\n4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter name: ");
+                scanf("%s", name);
+                enqueue(name);
+                break;
+            case 2:
+                dequeue();
+                break;
+            case 3:
+                display();
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+    return 0;
+}
