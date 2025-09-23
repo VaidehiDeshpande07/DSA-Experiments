@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Node structure
+struct Node {
+    char word[50];
+    struct Node* next;
+};
+
+struct Node* top = NULL;
+
+// Push operation (type word)
+void push(char* w) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    strcpy(newNode->word, w);
+    newNode->next = top;
+    top = newNode;
+    printf("Word '%s' added.\n", w);
+}
+
+// Pop operation (Undo)
+void pop() {
+    if (top == NULL) {
+        printf("Nothing to undo!\n");
+        return;
+    }
+    printf("Undo: '%s' removed.\n", top->word);
+    struct Node* temp = top;
+    top = top->next;
+    free(temp);
+}
+
+// Display all words
+void display() {
+    if (top == NULL) {
+        printf("No words typed yet.\n");
+        return;
+    }
+    struct Node* temp = top;
+    printf("Current text: ");
+    while (temp != NULL) {
+        printf("%s ", temp->word);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Main menu
+int main() {
+    int choice;
+    char word[50];
+
+    while (1) {
+        printf("\n--- Text Editor (Undo using Stack) ---\n");
+        printf("1. Type Word\n2. Undo\n3. Display\n4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter word: ");
+                scanf("%s", word);
+                push(word);
+                break;
+            case 2:
+                pop();
+                break;
+            case 3:
+                display();
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+    return 0;
+}
