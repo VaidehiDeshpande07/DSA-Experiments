@@ -1,0 +1,242 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure for student record
+typedef struct Student {
+    int rollNo;
+    char name[50];
+    int age;
+} Student;
+
+// Node structure for AVL Tree
+typedef struct Node {
+    Student data;
+    struct Node *left, *right;
+    int height;
+} Node;
+
+// Function to get height of node
+int height(Node *n) {
+    return (n == NULL) ? 0 : n->height;
+}
+
+// Utility function to get maximum of two integers
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+// Create new student node
+Node* createNode(int rollNo, char name[], int age) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    node->data.rollNo = rollNo;
+    strcpy(node->data.name, name);
+    node->data.age = age;
+    node->left = node->right = NULL;
+    node->height = 1; 
+    return node;
+}
+
+// Right rotate subtree
+Node* rightRotate(Node* y) {
+    Node* x = y->left;
+    Node* T2 = x->right;
+
+    x->right = y;
+    y->left = T2;
+
+    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1;
+
+    return x;
+}
+
+// Left rotate subtree
+Node* leftRotate(Node* x) {
+    Node* y = x->right;
+    Node* T2 = y->left;
+
+    y->left = x;
+    x->right = T2;
+
+    x->height = max(height(x->left), height(x->right)) + 1;
+    y->height = max(height(y->left), height(y->right)) + 1;
+
+    return y;
+}
+
+// Get balance factor of node
+int getBalance(Node* n) {
+    return (n == NULL) ? 0 : height(n->left) - height(n->right);
+}
+
+// Insert a student into AVL tree
+Node* insert(Node* node, int rollNo, char name[], int age) {
+    if (node == NULL) 
+        return createNode(rollNo, name, age);
+
+    if (rollNo < node->data.rollNo)
+        node->left = insert(node->left, rollNo, name, age);
+    else if (rollNo > node->data.rollNo)
+        node->right = insert(node->right, rollNo, name, age);
+    else
+        return node; // Duplicate roll numbers not allowed
+
+    node->height = 1 + max(height(node->left), height(node->right));
+
+    int balance = getBalance(node);
+
+    // Balancing cases
+    if (balance > 1 && rollNo < node->left->data.rollNo)
+        return rightRotate(node);
+
+    if (balance < -1 && rollNo > node->right->data.rollNo)
+        return leftRotate(node);
+
+    if (balance > 1 && rollNo > node->left->data.rollNo) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    if (balance < -1 && rollNo < node->right->data.rollNo) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    return node;
+}
+
+// Find minimum value node
+Node* minValueNode(Node* node) {
+    Node* current = node;
+    while (current->left != NULL)
+        current = current->left;
+    return current;
+}
+
+// Delete a student record
+Node* deleteNode(Node* root, int rollNo) {
+    if (root == NULL) return root;
+
+    if (rollNo < root->data.rollNo)
+        root->left = deleteNode(root->left, rollNo);
+    else if (rollNo > root->data.rollNo)
+        root->right = deleteNode(root->right, rollNo);
+    else {
+        if ((root->left == NULL) || (root->right == NULL)) {
+            Node* temp = root->left ? root->left : root->right;
+
+            if (temp == NULL) {
+                temp = root;
+                root = NULL;
+            } else
+                *root = *temp;
+            free(temp);
+        } else {
+            Node* temp = minValueNode(root->right);
+            root->data = temp->data;
+            root->right = deleteNode(root->right, temp->data.rollNo);
+        }
+    }
+
+    if (root == NULL) return root;
+
+    root->height = 1 + max(height(root->left), height(root->right));
+
+    int balance = getBalance(root);
+
+    if (balance > 1 && getBalance(root->left) >= 0)
+        return rightRotate(root);
+
+    if (balance > 1 && getBalance(root->left) < 0) {
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+
+    if (balance < -1 && getBalance(root->right) <= 0)
+        return leftRotate(root);
+
+    if (balance < -1 && getBalance(root->right) > 0) {
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+
+    return root;
+}
+
+// Search for a student
+Node* search(Node* root, int rollNo) {
+    if (root == NULL || root->data.rollNo == rollNo)
+        return root;
+    if (rollNo < root->data.rollNo)
+        return search(root->left, rollNo);
+    return search(root->right, rollNo);
+}
+
+// Display students Inorder (sorted by roll no.)
+void inorder(Node* root) {
+    if (root != NULL) {
+        inorder(root->left);
+        printf("Roll No: %d, Name: %s, Age: %d\n", root->data.rollNo, root->data.name, root->data.age);
+        inorder(root->right);
+    }
+}
+
+int main() {
+    Node* root = NULL;
+    int choice, rollNo, age;
+    char name[50];
+
+    do {
+        printf("\n--- Student Database using AVL Tree ---\n");
+        printf("1. Insert Student\n");
+        printf("2. Delete Student\n");
+        printf("3. Search Student\n");
+        printf("4. Display All Students (Inorder)\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                printf("Enter Roll No: ");
+                scanf("%d", &rollNo);
+                printf("Enter Name: ");
+                scanf("%s", name);
+                printf("Enter Age: ");
+                scanf("%d", &age);
+                root = insert(root, rollNo, name, age);
+                break;
+
+            case 2:
+                printf("Enter Roll No to Delete: ");
+                scanf("%d", &rollNo);
+                root = deleteNode(root, rollNo);
+                break;
+
+            case 3:
+                printf("Enter Roll No to Search: ");
+                scanf("%d", &rollNo);
+                Node* res = search(root, rollNo);
+                if (res != NULL)
+                    printf("Found -> Roll No: %d, Name: %s, Age: %d\n", res->data.rollNo, res->data.name, res->data.age);
+                else
+                    printf("Student not found.\n");
+                break;
+
+            case 4:
+                printf("\nStudent Records (Inorder Traversal):\n");
+                inorder(root);
+                break;
+
+            case 5:
+                printf("Exiting...\n");
+                break;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    } while(choice != 5);
+
+    return 0;
+}
