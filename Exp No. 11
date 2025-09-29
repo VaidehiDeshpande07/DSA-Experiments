@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 20
+
+int adj[MAX][MAX]; // adjacency matrix
+int visited[MAX];
+int n; // number of vertices
+
+// Function to create adjacency matrix
+void createGraph() {
+    int i, j, edges, origin, dest;
+    printf("\nEnter number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter number of directed edges: ");
+    scanf("%d", &edges);
+
+    // Initialize matrix
+    for (i = 0; i < n; i++)
+        for (j = 0; j < n; j++)
+            adj[i][j] = 0;
+
+    printf("\nEnter edges (origin destination):\n");
+    for (i = 0; i < edges; i++) {
+        scanf("%d%d", &origin, &dest);
+        if (origin >= n || dest >= n || origin < 0 || dest < 0) {
+            printf("Invalid edge!\n");
+            i--;
+        } else {
+            adj[origin][dest] = 1; // directed edge
+        }
+    }
+}
+
+// BFS implementation
+void BFS(int start) {
+    int queue[MAX], front = 0, rear = -1, i;
+    for (i = 0; i < n; i++)
+        visited[i] = 0;
+
+    printf("\nBFS traversal starting from node %d: ", start);
+    visited[start] = 1;
+    queue[++rear] = start;
+
+    while (front <= rear) {
+        int node = queue[front++];
+        printf("%d ", node);
+
+        for (i = 0; i < n; i++) {
+            if (adj[node][i] == 1 && !visited[i]) {
+                queue[++rear] = i;
+                visited[i] = 1;
+            }
+        }
+    }
+    printf("\n");
+}
+
+// DFS implementation
+void DFS(int start) {
+    int i;
+    printf("%d ", start);
+    visited[start] = 1;
+
+    for (i = 0; i < n; i++) {
+        if (adj[start][i] == 1 && !visited[i]) {
+            DFS(i);
+        }
+    }
+}
+
+// Menu
+int main() {
+    int choice, start;
+    createGraph();
+
+    while (1) {
+        printf("\n--- Metro Network Graph Menu ---\n");
+        printf("1. Perform BFS Traversal\n");
+        printf("2. Perform DFS Traversal\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 1:
+            printf("Enter starting station (0 to %d): ", n - 1);
+            scanf("%d", &start);
+            BFS(start);
+            break;
+
+        case 2:
+            printf("Enter starting station (0 to %d): ", n - 1);
+            scanf("%d", &start);
+            for (int i = 0; i < n; i++)
+                visited[i] = 0;
+            printf("\nDFS traversal starting from node %d: ", start);
+            DFS(start);
+            printf("\n");
+            break;
+
+        case 3:
+            exit(0);
+
+        default:
+            printf("Invalid choice!\n");
+        }
+    }
+    return 0;
+}
