@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 100     // Maximum number of books
+#define SIZE 50     // Maximum length of book title
+
+// Function to sort book titles alphabetically
+void sortBooks(char books[][SIZE], int n) {
+    char temp[SIZE];
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (strcmp(books[i], books[j]) > 0) {
+                strcpy(temp, books[i]);
+                strcpy(books[i], books[j]);
+                strcpy(books[j], temp);
+            }
+        }
+    }
+}
+
+// Function for Binary Search
+int binarySearch(char books[][SIZE], int n, char key[]) {
+    int low = 0, high = n - 1, mid;
+
+    while (low <= high) {
+        mid = (low + high) / 2;
+        int cmp = strcmp(books[mid], key);
+
+        if (cmp == 0)
+            return mid; // Found
+        else if (cmp < 0)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return -1; // Not found
+}
+
+int main() {
+    char books[MAX][SIZE];
+    int count = 0;
+    int choice;
+    char title[SIZE];
+
+    do {
+        printf("\n===== BOOK MANAGEMENT SYSTEM =====\n");
+        printf("1. Add Book\n");
+        printf("2. Display Books\n");
+        printf("3. Search Book (Binary Search)\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // clear newline from buffer
+
+        switch (choice) {
+            case 1:
+                if (count >= MAX) {
+                    printf("Book list is full!\n");
+                } else {
+                    printf("Enter book title: ");
+                    fgets(title, SIZE, stdin);
+                    title[strcspn(title, "\n")] = '\0'; // remove newline
+                    strcpy(books[count], title);
+                    count++;
+                    sortBooks(books, count);
+                    printf("Book added successfully!\n");
+                }
+                break;
+
+            case 2:
+                if (count == 0) {
+                    printf("No books available.\n");
+                } else {
+                    printf("\nList of Books:\n");
+                    for (int i = 0; i < count; i++) {
+                        printf("%d. %s\n", i + 1, books[i]);
+                    }
+                }
+                break;
+
+            case 3:
+                if (count == 0) {
+                    printf("No books to search.\n");
+                } else {
+                    printf("Enter book title to search: ");
+                    fgets(title, SIZE, stdin);
+                    title[strcspn(title, "\n")] = '\0';
+                    int pos = binarySearch(books, count, title);
+                    if (pos != -1)
+                        printf("Book '%s' found at position %d.\n", books[pos], pos + 1);
+                    else
+                        printf("Book not found.\n");
+                }
+                break;
+
+            case 4:
+                printf("Exiting program. Goodbye!\n");
+                break;
+
+            default:
+                printf("Invalid choice! Please enter 1–4.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
+}
